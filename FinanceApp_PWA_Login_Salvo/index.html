@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#7c3aed"/>
+<title>FinanceApp Multiusuário</title>
+<style>
+:root{
+  --bg1:#2e075f;--bg2:#6d28d9;--bg3:#c026d3;--card:rgba(255,255,255,.13);
+  --text:#fff;--muted:rgba(255,255,255,.72);--input:#fff;--inputText:#3b0764;
+  --green:#86efac;--red:#fca5a5;--line:rgba(255,255,255,.15);
+}
+.theme-lilas{--bg1:#4c1d95;--bg2:#8b5cf6;--bg3:#d8b4fe}
+.theme-rosa{--bg1:#831843;--bg2:#db2777;--bg3:#f9a8d4}
+.theme-azul{--bg1:#0f172a;--bg2:#2563eb;--bg3:#93c5fd}
+.theme-verde{--bg1:#052e16;--bg2:#16a34a;--bg3:#86efac}
+.theme-escuro{--bg1:#020617;--bg2:#312e81;--bg3:#581c87}
+.theme-claro{--bg1:#f5f3ff;--bg2:#ddd6fe;--bg3:#f5d0fe;--card:rgba(255,255,255,.78);--text:#2e1065;--muted:#6b21a8;--line:rgba(91,33,182,.18)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:var(--text);min-height:100vh}
+.wrap{max-width:1250px;margin:auto;padding:20px}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,.25);backdrop-filter:blur(8px)}
+.login .card{width:100%;max-width:430px}
+header{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:54px;height:54px;border-radius:20px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:28px}
+h1{margin:0;font-size:28px}.muted{color:var(--muted)}.small{font-size:12px}
+button{border:0;border-radius:16px;padding:11px 14px;background:rgba(255,255,255,.15);color:var(--text);font-weight:bold;cursor:pointer}
+button:hover{filter:brightness(1.1)}.primary{background:#d946ef;color:#fff}.danger{background:#b91c1c;color:#fff}.ok{background:#16a34a;color:#fff}
+input,select,textarea{width:100%;border:0;border-radius:13px;padding:11px;margin:6px 0;background:var(--input);color:var(--inputText);font-weight:600}
+textarea{min-height:65px}
+nav{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin:15px 0}
+.active{background:#fff;color:#3b0764}
+.grid2{display:grid;grid-template-columns:380px 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.hidden{display:none}.value{font-size:28px;font-weight:900}.good{color:var(--green)}.bad{color:var(--red)}
+table{width:100%;border-collapse:collapse;min-width:850px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#4c1d95;color:white;position:sticky;top:0}
+.tablebox{overflow:auto;max-height:520px;border-radius:18px;background:rgba(0,0,0,.16)}
+.dreline{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;padding:12px;border-radius:16px;background:rgba(0,0,0,.16);margin:8px 0}.section{background:rgba(217,70,239,.28);font-weight:bold}
+@media(max-width:900px){header{flex-direction:column;align-items:flex-start}nav{grid-template-columns:repeat(2,1fr)}.grid2,.grid3,.grid4{grid-template-columns:1fr}h1{font-size:23px}}
+</style>
+
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#7c3aed">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+</head>
+<body>
+<div id="loginArea" class="login">
+  <div class="card">
+    <div class="brand"><div class="logo">💜</div><div><h1>FinanceApp</h1><div class="muted">Acesso individual e dados separados</div></div></div>
+    <p id="msgLogin" class="bad"></p>
+    <div id="formLogin">
+      <input id="loginUser" placeholder="Usuário">
+      <input id="loginPass" type="password" placeholder="Senha">
+      <label class="small muted" style="display:flex;gap:8px;align-items:center;margin:6px 0 10px"><input id="manterConectado" type="checkbox" checked style="width:auto;margin:0"> Manter usuário salvo neste aparelho</label>
+      <button class="primary" onclick="entrar()" style="width:100%">Entrar</button>
+      <button onclick="mostrarCadastro()" style="width:100%;margin-top:8px">Criar novo usuário</button>
+    </div>
+    <div id="formCadastro" class="hidden">
+      <input id="cadUser" placeholder="Novo usuário">
+      <input id="cadPass" type="password" placeholder="Senha">
+      <input id="cadPass2" type="password" placeholder="Confirmar senha">
+      <select id="cadTema">
+        <option value="">Roxo padrão</option>
+        <option value="theme-lilas">Lilás</option>
+        <option value="theme-rosa">Rosa</option>
+        <option value="theme-azul">Azul</option>
+        <option value="theme-verde">Verde</option>
+        <option value="theme-escuro">Escuro</option>
+        <option value="theme-claro">Claro</option>
+      </select>
+      <button class="primary" onclick="criarUsuario()" style="width:100%">Criar e acessar</button>
+      <button onclick="mostrarLogin()" style="width:100%;margin-top:8px">Voltar</button>
+    </div>
+    <p class="small muted">Cada usuário tem lançamentos, históricos e tonalidade próprios. Os dados ficam salvos neste navegador.</p>
+  </div>
+</div>
+
+<div id="appArea" class="wrap hidden">
+<header>
+  <div class="brand"><div class="logo">💜</div><div><h1>FinanceApp Multiusuário</h1><div class="muted">Usuário: <b id="usuarioNome"></b> • dados separados por perfil</div></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="primary" onclick="ouvir()">🎙️ Voz</button>
+    <button onclick="sair()">Sair / Trocar usuário</button>
+  </div>
+</header>
+
+<nav>
+  <button id="bDashboard" class="active" onclick="aba('Dashboard')">Dashboard</button>
+  <button id="bDiario" onclick="aba('Diario')">Livro Diário</button>
+  <button id="bDRE" onclick="aba('DRE')">DRE</button>
+  <button id="bCenarios" onclick="aba('Cenarios')">Cenários</button>
+  <button id="bCadastro" onclick="aba('Cadastro')">Históricos</button>
+  <button id="bExportar" onclick="aba('Exportar')">Exportar</button>
+  <button id="bExtras" onclick="aba('Extras')">Extras</button>
+  <button id="bConfig" onclick="aba('Config')">Config.</button>
+</nav>
+
+<section id="Dashboard">
+  <div class="grid4">
+    <div class="card"><div class="muted">Receitas</div><div id="dashReceitas" class="value good"></div></div>
+    <div class="card"><div class="muted">Despesas</div><div id="dashDespesas" class="value bad"></div></div>
+    <div class="card"><div class="muted">Saldo</div><div id="dashSaldo" class="value"></div></div>
+    <div class="card"><div class="muted">Lançamentos</div><div id="dashQtd" class="value"></div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><h2>Privacidade</h2><p class="muted">Ao sair, outro usuário entra com login próprio e visualiza somente seus próprios dados.</p></div>
+  <div class="card" style="margin-top:12px"><h2>Comando de voz</h2><p id="vozTexto" class="muted">Exemplo: “paguei 120 de energia”.</p></div>
+</section>
+
+<section id="Diario" class="hidden">
+  <div class="grid2">
+    <div class="card">
+      <h2 id="tituloForm">Novo lançamento</h2>
+      <input type="date" id="data">
+      <select id="codigo"></select>
+      <input type="number" id="valor" placeholder="Valor real">
+      <select id="status"><option>Pago</option><option>Recebido</option><option>Pendente</option><option>Programado</option></select>
+      <textarea id="obs" placeholder="Observação"></textarea>
+      <button class="primary" id="btnSalvar" onclick="salvarLancamento()">+ Lançar</button>
+      <button id="btnCancelar" class="hidden" onclick="cancelarEdicao()">Cancelar edição</button>
+    </div>
+    <div class="card">
+      <div class="grid3">
+        <input id="filtro" oninput="render()" placeholder="Pesquisar">
+        <select id="filtroMes" onchange="render()">
+          <option value="">Todos os meses</option><option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option><option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option><option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+        </select>
+        <select id="filtroTipo" onchange="render()"><option value="">Todos os tipos</option><option>Receita</option><option>Despesa</option></select>
+      </div>
+      <div class="tablebox"><table><thead><tr><th>Data</th><th>Cód.</th><th>Histórico</th><th>Tipo</th><th>Categoria</th><th>Valor</th><th>Status</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="tabela"></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section id="DRE" class="hidden"><div class="card"><h2>DRE detalhada</h2><div id="dreDetalhada"></div></div></section>
+
+<section id="Cenarios" class="hidden">
+ <div class="card">
+  <h2>Parâmetros editáveis dos cenários</h2>
+  <p class="muted">Altere os valores abaixo para simular diferentes situações. Os valores ficam salvos para o usuário atual.</p>
+  <div class="grid4">
+    <div><label>Economia sem carro</label><input type="number" id="editSemCarro" placeholder="Ex.: 3400" oninput="salvarParametrosCenario()"></div>
+    <div><label>Economia sem moto</label><input type="number" id="editSemMoto" placeholder="Ex.: 1400" oninput="salvarParametrosCenario()"></div>
+    <div><label>Receita extra simulada</label><input type="number" id="editReceitaExtra" placeholder="Ex.: 500" oninput="salvarParametrosCenario()"></div>
+    <div><label>Redução de despesas</label><input type="number" id="editReducaoDespesa" placeholder="Ex.: 300" oninput="salvarParametrosCenario()"></div>
+  </div>
+  <button style="margin-top:10px" onclick="resetarParametrosCenario()">Restaurar valores padrão</button>
+ </div>
+
+ <div class="grid3" style="margin-top:12px">
+  <div class="card"><h2>Cenário atual</h2><p id="cenAtual"></p></div>
+  <div class="card"><h2>Sem carro</h2><p id="cenSemCarro"></p></div>
+  <div class="card"><h2>Sem moto</h2><p id="cenSemMoto"></p></div>
+ </div>
+
+ <div class="card" style="margin-top:12px">
+   <h2>Simulação personalizada</h2>
+   <p id="cenPersonalizado"></p>
+ </div>
+</section>
+
+<section id="Cadastro" class="hidden">
+ <div class="grid2">
+  <div class="card"><h2>Modelo rápido para histórico</h2>
+    <input id="novoCod" placeholder="Código. Ex.: 200">
+    <input id="novoHist" placeholder="Histórico. Ex.: Pagamento de farmácia">
+    <select id="novoTipo"><option>Despesa</option><option>Receita</option></select>
+    <input id="novoCat" placeholder="Categoria. Ex.: Saúde">
+    <input id="novoConta" placeholder="Conta sugerida">
+    <input type="number" id="novoValor" placeholder="Valor padrão">
+    <button class="primary" onclick="cadastrarHistorico()">Cadastrar histórico</button>
+  </div>
+  <div class="card"><h2>Históricos do usuário</h2><div class="tablebox"><table><thead><tr><th>Código</th><th>Histórico</th><th>Tipo</th><th>Categoria</th><th>Valor</th></tr></thead><tbody id="histTabela"></tbody></table></div></div>
+ </div>
+</section>
+
+<section id="Exportar" class="hidden">
+ <div class="grid4">
+  <div class="card"><h2>CSV/Excel</h2><button class="primary" onclick="exportarCSV()">Exportar CSV</button></div>
+  <div class="card"><h2>PDF</h2><button class="primary" onclick="window.print()">Exportar PDF</button></div>
+  <div class="card"><h2>Backup local</h2><p class="muted">Baixa uma cópia dos dados do usuário atual.</p><button class="primary" onclick="backup()">Baixar backup</button><input type="file" onchange="restore(event)"></div>
+  <div class="card"><h2>Backup no Google Drive</h2><p class="muted">Gera o backup e abre o Google Drive para você salvar o arquivo.</p><button class="primary" onclick="backupDrive()">Salvar backup no Drive</button><button onclick="abrirDrive()" style="margin-top:8px">Abrir Google Drive</button></div>
+ </div>
+</section>
+
+
+<section id="Extras" class="hidden">
+ <div class="grid3">
+  <div class="card"><h2>Excel para Drive</h2><p class="muted">Gera CSV compatível com Excel e abre o Google Drive para salvar.</p><button class="primary" onclick="excelDrive()">Gerar Excel/CSV e abrir Drive</button></div>
+  <div class="card"><h2>PDF mensal</h2><p class="muted">Filtre o mês no Livro Diário e gere o PDF pela impressão do navegador.</p><select id="pdfMes"><option value="">Todos os meses</option><option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option><option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option><option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select><button class="primary" onclick="pdfMensal()">Gerar PDF mensal</button></div>
+  <div class="card"><h2>Relatório por e-mail</h2><p class="muted">Cria um resumo e abre seu e-mail para envio.</p><input id="emailDestino" placeholder="E-mail do destinatário"><button class="primary" onclick="relatorioEmail()">Abrir e-mail com relatório</button></div>
+ </div>
+ <div class="grid3" style="margin-top:12px">
+  <div class="card"><h2>Lembretes automáticos</h2><p class="muted">Ativa lembrete local no navegador para registrar lançamentos.</p><input type="time" id="horaLembrete" value="20:00"><button class="primary" onclick="ativarLembrete()">Ativar lembrete</button><p id="statusLembrete" class="muted"></p></div>
+  <div class="card"><h2>IA financeira simples</h2><p class="muted">Análise automática baseada nas receitas, despesas e maiores gastos.</p><button class="primary" onclick="analiseIA()">Gerar análise</button><p id="textoIA"></p></div>
+  <div class="card"><h2>Metas automáticas</h2><p class="muted">Sugestão de metas por mês com base na sua renda.</p><button class="primary" onclick="gerarMetas()">Gerar metas</button><div id="metasAuto"></div></div>
+ </div>
+ <div class="card" style="margin-top:12px">
+   <h2>Gráfico de evolução patrimonial</h2>
+   <p class="muted">Informe seu patrimônio inicial e os saldos mensais serão projetados com base nos lançamentos.</p>
+   <div class="grid3"><input type="number" id="patrimonioInicial" placeholder="Patrimônio inicial"><button onclick="graficoPatrimonio()">Atualizar gráfico</button><button onclick="salvarPatrimonio()">Salvar patrimônio inicial</button></div>
+   <canvas id="patrimonioCanvas" width="900" height="320" style="width:100%;background:rgba(255,255,255,.08);border-radius:18px;margin-top:10px"></canvas>
+ </div>
+</section>
+
+<section id="Config" class="hidden">
+ <div class="grid2">
+  <div class="card"><h2>Tonalidade do aplicativo</h2>
+   <select id="temaSelect" onchange="alterarTema()">
+    <option value="">Roxo padrão</option><option value="theme-lilas">Lilás</option><option value="theme-rosa">Rosa</option><option value="theme-azul">Azul</option><option value="theme-verde">Verde</option><option value="theme-escuro">Escuro</option><option value="theme-claro">Claro</option>
+   </select>
+  </div>
+  <div class="card"><h2>Alterar senha</h2><input id="novaSenha" type="password" placeholder="Nova senha"><button onclick="alterarSenha()">Salvar nova senha</button></div>
+  <div class="card"><h2>Acesso salvo</h2><p class="muted">O usuário fica salvo neste aparelho para abrir automaticamente.</p><button onclick="removerAcessoSalvo()">Remover acesso salvo</button></div>
+ </div>
+</section>
+</div>
+
+<script>
+const KEY='financeapp_multi_usuarios_v2', SESSION='financeapp_user_persistente';
+const money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0));
+const baseHist=[
+["001","Recebimento de salário mensal","Receita","Salário","Banco",3200],["002","Recebimento de renda extra","Receita","Renda extra","Banco",1200],
+["101","Pagamento de energia elétrica","Despesa","Energia","Moradia",100],["102","Pagamento de água","Despesa","Água","Moradia",80],
+["103","Abastecimento de veículo","Despesa","Gasolina","Transporte",600],["104","Compra de alimentação mensal","Despesa","Alimentação","Familiar",1300],
+["105","Pagamento financiamento do carro","Despesa","Financiamento carro","Financiamentos",2400],["106","Pagamento financiamento da moto","Despesa","Financiamento moto","Financiamentos",800],
+["107","Pagamento seguro do carro","Despesa","Seguro carro","Seguros",400],["108","Pagamento seguro da moto","Despesa","Seguro moto","Seguros",400],
+["109","Pagamento internet","Despesa","Internet","Comunicação",120],["110","Pagamento assinatura ChatGPT","Despesa","ChatGPT","Assinaturas",99.99],
+["111","Pagamento de curso","Despesa","Curso","Educação",300],["112","Limpeza do carro","Despesa","Limpeza carro","Transporte",200],
+["113","Pagamento Netflix","Despesa","Netflix","Assinaturas",80],["114","Gastos pessoais","Despesa","Gastos pessoais","Pessoal",600],
+["115","Provisionamento mensal de IPTU","Despesa","IPTU","Impostos",133.33],["116","Provisionamento mensal de IPVA","Despesa","IPVA","Impostos",333.33]
+].map(x=>({codigo:x[0],historico:x[1],tipo:x[2],categoria:x[3],conta:x[4],valor:x[5]}));
+let usuarios=JSON.parse(localStorage.getItem(KEY)||'{}'), user=localStorage.getItem(SESSION)||'', editId=null;
+function saveAll(){localStorage.setItem(KEY,JSON.stringify(usuarios))}
+function dataUser(){return usuarios[user]}
+function lancamentosIniciais(){return baseHist.map((h,i)=>({id:crypto.randomUUID(),data:`2026-05-${i<2?'01':'05'}`,...h,valorReal:h.valor,status:i<2?'Recebido':'Programado',observacao:'Lançamento inicial'}))}
+function mostrarCadastro(){formLogin.classList.add('hidden');formCadastro.classList.remove('hidden');msgLogin.innerText=''}
+function mostrarLogin(){formCadastro.classList.add('hidden');formLogin.classList.remove('hidden');msgLogin.innerText=''}
+function criarUsuario(){let u=cadUser.value.trim().toLowerCase(); if(!u||!cadPass.value)return msgLogin.innerText='Informe usuário e senha.'; if(cadPass.value!==cadPass2.value)return msgLogin.innerText='As senhas não conferem.'; if(usuarios[u])return msgLogin.innerText='Usuário já existe.'; usuarios[u]={senha:cadPass.value,tema:cadTema.value,dados:{historicos:baseHist,lanc:lancamentosIniciais()}}; saveAll(); user=u; localStorage.setItem(SESSION,u); abrirApp()}
+function entrar(){let u=loginUser.value.trim().toLowerCase(); if(!usuarios[u]||usuarios[u].senha!==loginPass.value)return msgLogin.innerText='Usuário ou senha inválidos.'; user=u; localStorage.setItem(SESSION,u); abrirApp()}
+function sair(){localStorage.removeItem(SESSION);location.reload()}
+function aplicarTema(){document.body.className=''; if(user&&dataUser().tema)document.body.classList.add(dataUser().tema)}
+function abrirApp(){loginArea.classList.add('hidden');appArea.classList.remove('hidden');usuarioNome.innerText=user;aplicarTema();temaSelect.value=dataUser().tema||'';data.value=new Date().toISOString().slice(0,10);preencherSelect();carregarParametrosCenario();render()}
+if(user&&usuarios[user])abrirApp()
+function preencherSelect(){codigo.innerHTML=dataUser().dados.historicos.map(h=>`<option value="${h.codigo}">${h.codigo} - ${h.historico}</option>`).join('')}
+function aba(id){['Dashboard','Diario','DRE','Cenarios','Cadastro','Exportar','Extras','Config'].forEach(x=>{document.getElementById(x).classList.add('hidden');document.getElementById('b'+x).classList.remove('active')});document.getElementById(id).classList.remove('hidden');document.getElementById('b'+id).classList.add('active');if(id==='Cenarios')carregarParametrosCenario();render()}
+function totais(lista=dataUser().dados.lanc){let r=lista.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+Number(l.valorReal||0),0),d=lista.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+Number(l.valorReal||0),0);return{r,d,s:r-d}}
+function salvarLancamento(){let du=dataUser(), h=du.dados.historicos.find(x=>x.codigo===codigo.value), v=Number(valor.value||h.valor);let obj={data:data.value,...h,valorReal:v,status:status.value,observacao:obs.value||'Lançamento manual'}; if(editId){du.dados.lanc=du.dados.lanc.map(l=>l.id===editId?{...l,...obj}:l);cancelarEdicao(false)}else du.dados.lanc.unshift({id:crypto.randomUUID(),...obj}); saveAll(); limparForm();render()}
+function editar(id){let l=dataUser().dados.lanc.find(x=>x.id===id);editId=id;tituloForm.innerText='Editar lançamento';btnSalvar.innerText='Salvar alteração';btnCancelar.classList.remove('hidden');data.value=l.data;codigo.value=l.codigo==='VOZ'?'101':l.codigo;valor.value=l.valorReal;status.value=l.status;obs.value=l.observacao||'';aba('Diario')}
+function cancelarEdicao(clear=true){editId=null;tituloForm.innerText='Novo lançamento';btnSalvar.innerText='+ Lançar';btnCancelar.classList.add('hidden');if(clear)limparForm()}
+function limparForm(){data.value=new Date().toISOString().slice(0,10);valor.value='';obs.value='';status.value='Pago'}
+function excluir(id){dataUser().dados.lanc=dataUser().dados.lanc.filter(l=>l.id!==id);saveAll();render()}
+function listaFiltrada(){let f=(filtro?.value||'').toLowerCase(),m=filtroMes.value,t=filtroTipo.value;return dataUser().dados.lanc.filter(l=>(l.historico+l.categoria+l.tipo+l.observacao).toLowerCase().includes(f)&&(!m||l.data.slice(5,7)===m)&&(!t||l.tipo===t))}
+
+function parametrosCenario(){
+  let du=dataUser();
+  if(!du.cenarios){
+    du.cenarios={semCarro:3400,semMoto:1400,receitaExtra:0,reducaoDespesa:0};
+    saveAll();
+  }
+  return du.cenarios;
+}
+function carregarParametrosCenario(){
+  if(!user || !dataUser()) return;
+  let c=parametrosCenario();
+  if(document.getElementById('editSemCarro')) editSemCarro.value=c.semCarro;
+  if(document.getElementById('editSemMoto')) editSemMoto.value=c.semMoto;
+  if(document.getElementById('editReceitaExtra')) editReceitaExtra.value=c.receitaExtra;
+  if(document.getElementById('editReducaoDespesa')) editReducaoDespesa.value=c.reducaoDespesa;
+}
+function salvarParametrosCenario(){
+  if(!user || !dataUser()) return;
+  dataUser().cenarios={
+    semCarro:Number(editSemCarro.value||0),
+    semMoto:Number(editSemMoto.value||0),
+    receitaExtra:Number(editReceitaExtra.value||0),
+    reducaoDespesa:Number(editReducaoDespesa.value||0)
+  };
+  saveAll();
+  render();
+}
+function resetarParametrosCenario(){
+  dataUser().cenarios={semCarro:3400,semMoto:1400,receitaExtra:0,reducaoDespesa:0};
+  saveAll();
+  carregarParametrosCenario();
+  render();
+}
+
+function render(){if(!user)return;let du=dataUser(),lista=listaFiltrada(),tt=totais(du.dados.lanc);dashReceitas.innerText=money(tt.r);dashDespesas.innerText=money(tt.d);dashSaldo.innerText=money(tt.s);dashSaldo.className='value '+(tt.s<0?'bad':'good');dashQtd.innerText=du.dados.lanc.length;
+tabela.innerHTML=lista.map(l=>`<tr><td>${l.data}</td><td>${l.codigo}</td><td>${l.historico}</td><td>${l.tipo}</td><td>${l.categoria}</td><td>${money(l.valorReal)}</td><td>${l.status}</td><td>${l.observacao}</td><td><button onclick="editar('${l.id}')">Editar</button> <button class="danger" onclick="excluir('${l.id}')">Excluir</button></td></tr>`).join('');
+histTabela.innerHTML=du.dados.historicos.map(h=>`<tr><td>${h.codigo}</td><td>${h.historico}</td><td>${h.tipo}</td><td>${h.categoria}</td><td>${money(h.valor)}</td></tr>`).join('');
+let rec=du.dados.lanc.filter(l=>l.tipo==='Receita'),desp=du.dados.lanc.filter(l=>l.tipo==='Despesa');dreDetalhada.innerHTML=`<div class="dreline section"><span>RECEITAS</span><span>Tipo</span><span>Valor</span></div>`+rec.map(l=>`<div class="dreline"><span>${l.historico}<br><small class="muted">${l.categoria} • ${l.observacao}</small></span><span>${l.tipo}</span><b class="good">${money(l.valorReal)}</b></div>`).join('')+`<div class="dreline section"><span>DESPESAS</span><span>Tipo</span><span>Valor</span></div>`+desp.map(l=>`<div class="dreline"><span>${l.historico}<br><small class="muted">${l.categoria} • ${l.observacao}</small></span><span>${l.tipo}</span><b class="bad">${money(l.valorReal)}</b></div>`).join('')+`<div class="dreline section"><span>RESULTADO LÍQUIDO</span><span></span><b class="${tt.s<0?'bad':'good'}">${money(tt.s)}</b></div>`;
+let pc=parametrosCenario();
+cenAtual.innerHTML=`Receita: <b>${money(tt.r)}</b><br>Despesa: <b>${money(tt.d)}</b><br>Saldo: <b class="${tt.s<0?'bad':'good'}">${money(tt.s)}</b>`;
+let sc=tt.r-(tt.d-pc.semCarro),sm=tt.r-(tt.d-pc.semMoto);
+cenSemCarro.innerHTML=`Economia editável considerada: <b>${money(pc.semCarro)}</b><br>Novo saldo: <b class="${sc<0?'bad':'good'}">${money(sc)}</b>`;
+cenSemMoto.innerHTML=`Economia editável considerada: <b>${money(pc.semMoto)}</b><br>Novo saldo: <b class="${sm<0?'bad':'good'}">${money(sm)}</b>`;
+let pers=tt.s+pc.receitaExtra+pc.reducaoDespesa;
+cenPersonalizado.innerHTML=`Receita extra: <b>${money(pc.receitaExtra)}</b><br>Redução de despesas: <b>${money(pc.reducaoDespesa)}</b><br>Saldo projetado: <b class="${pers<0?'bad':'good'}">${money(pers)}</b>`}
+function cadastrarHistorico(){let du=dataUser(); if(!novoCod.value||!novoHist.value||!novoCat.value)return alert('Preencha código, histórico e categoria.');du.dados.historicos.push({codigo:novoCod.value,historico:novoHist.value,tipo:novoTipo.value,categoria:novoCat.value,conta:novoConta.value,valor:Number(novoValor.value||0)});saveAll();preencherSelect();['novoCod','novoHist','novoCat','novoConta','novoValor'].forEach(id=>document.getElementById(id).value='');render()}
+function alterarTema(){dataUser().tema=temaSelect.value;saveAll();aplicarTema()}
+function alterarSenha(){if(!novaSenha.value)return;dataUser().senha=novaSenha.value;saveAll();novaSenha.value='';alert('Senha alterada.')}
+function exportarCSV(){let csv='Data;Codigo;Historico;Tipo;Categoria;Valor;Status;Observacao\n'+dataUser().dados.lanc.map(l=>`${l.data};${l.codigo};${l.historico};${l.tipo};${l.categoria};${String(l.valorReal).replace('.',',')};${l.status};${l.observacao}`).join('\n');download('lancamentos_'+user+'.csv',csv,'text/csv')}
+function backup(){download('backup_'+user+'.json',JSON.stringify(dataUser(),null,2),'application/json')}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{usuarios[user]=JSON.parse(r.result);saveAll();preencherSelect();render();alert('Backup restaurado.')};r.readAsText(f)}
+function download(nome,conteudo,tipo){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([conteudo],{type:tipo}));a.download=nome;a.click()}
+
+function backupDrive(){
+  backup();
+  setTimeout(()=>{
+    alert('O backup foi baixado. Agora salve ou envie esse arquivo para uma pasta do seu Google Drive. O Drive será aberto em uma nova guia.');
+    window.open('https://drive.google.com/drive/my-drive','_blank');
+  },500);
+}
+function abrirDrive(){
+  window.open('https://drive.google.com/drive/my-drive','_blank');
+}
+
+
+function excelDrive(){
+  exportarCSV();
+  setTimeout(()=>{
+    alert('O arquivo CSV foi baixado. Agora salve-o no Google Drive.');
+    window.open('https://drive.google.com/drive/my-drive','_blank');
+  },500);
+}
+function dadosPorMes(mes){
+  let lista=dataUser().dados.lanc;
+  if(mes) lista=lista.filter(l=>l.data&&l.data.slice(5,7)===mes);
+  let r=lista.filter(l=>l.tipo==='Receita').reduce((s,l)=>s+Number(l.valorReal||0),0);
+  let d=lista.filter(l=>l.tipo==='Despesa').reduce((s,l)=>s+Number(l.valorReal||0),0);
+  return {lista,r,d,s:r-d};
+}
+function pdfMensal(){
+  let mes=pdfMes.value;
+  filtroMes.value=mes;
+  aba('Diario');
+  render();
+  setTimeout(()=>window.print(),300);
+}
+function relatorioEmail(){
+  let t=totais(dataUser().dados.lanc);
+  let corpo=`Relatório Financeiro - ${user}%0D%0A%0D%0AReceitas: ${money(t.r)}%0D%0ADespesas: ${money(t.d)}%0D%0ASaldo: ${money(t.s)}%0D%0A%0D%0AEnviado pelo FinanceApp.`;
+  let email=emailDestino.value||'';
+  window.location.href=`mailto:${email}?subject=Relatório financeiro&body=${corpo}`;
+}
+let timerLembrete=null;
+async function ativarLembrete(){
+  if(!('Notification' in window)){statusLembrete.innerText='Seu navegador não suporta notificações.';return}
+  let perm=await Notification.requestPermission();
+  if(perm!=='granted'){statusLembrete.innerText='Permissão de notificação não concedida.';return}
+  if(timerLembrete) clearInterval(timerLembrete);
+  let hora=horaLembrete.value||'20:00';
+  dataUser().lembrete=hora; saveAll();
+  statusLembrete.innerText=`Lembrete ativado para ${hora}. O navegador precisa estar aberto.`;
+  timerLembrete=setInterval(()=>{
+    let agora=new Date();
+    let hh=String(agora.getHours()).padStart(2,'0')+':'+String(agora.getMinutes()).padStart(2,'0');
+    if(hh===hora) new Notification('FinanceApp Roxo',{body:'Lembrete: registre seus lançamentos financeiros de hoje.'});
+  },60000);
+}
+function analiseIA(){
+  let du=dataUser(), t=totais(du.dados.lanc);
+  let despesas=du.dados.lanc.filter(l=>l.tipo==='Despesa');
+  let porCat={};
+  despesas.forEach(l=>porCat[l.categoria]=(porCat[l.categoria]||0)+Number(l.valorReal||0));
+  let maior=Object.entries(porCat).sort((a,b)=>b[1]-a[1])[0];
+  let msg='';
+  if(t.s<0) msg+='Seu saldo está negativo. A prioridade é reduzir despesas fixas ou aumentar renda. ';
+  else msg+='Seu saldo está positivo. É possível direcionar parte para reserva de emergência. ';
+  if(maior) msg+=`A maior despesa é ${maior[0]}, com ${money(maior[1])}. `;
+  if(t.d>t.r*0.7) msg+='As despesas passam de 70% da receita; recomenda-se revisar financiamentos e gastos recorrentes. ';
+  msg+='Sugestão: defina meta mensal de reserva e acompanhe semanalmente seus lançamentos.';
+  textoIA.innerText=msg;
+}
+function gerarMetas(){
+  let t=totais(dataUser().dados.lanc);
+  let renda=t.r||4400;
+  let metas=[
+    ['Reserva de emergência', renda*0.10],
+    ['Alimentação', renda*0.25],
+    ['Transporte/veículos', renda*0.25],
+    ['Gastos pessoais', renda*0.10],
+    ['Cursos/desenvolvimento', renda*0.07]
+  ];
+  metasAuto.innerHTML=metas.map(m=>`<p><b>${m[0]}:</b> ${money(m[1])}</p>`).join('');
+}
+function salvarPatrimonio(){
+  dataUser().patrimonioInicial=Number(patrimonioInicial.value||0); saveAll(); graficoPatrimonio();
+}
+function graficoPatrimonio(){
+  let du=dataUser();
+  let inicial=Number(patrimonioInicial.value||du.patrimonioInicial||0);
+  patrimonioInicial.value=inicial||'';
+  let meses=['01','02','03','04','05','06','07','08','09','10','11','12'];
+  let nomes=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  let acum=inicial, valores=[];
+  meses.forEach(m=>{let x=dadosPorMes(m);acum+=x.s;valores.push(acum)});
+  let c=document.getElementById('patrimonioCanvas'),ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='16px Arial';ctx.fillText('Evolução patrimonial estimada',20,25);
+  let max=Math.max(...valores,inicial,1), min=Math.min(...valores,inicial,0), range=max-min||1;
+  let left=50,top=45,w=c.width-80,h=c.height-90;
+  ctx.strokeStyle='rgba(255,255,255,.4)';ctx.beginPath();ctx.moveTo(left,top);ctx.lineTo(left,top+h);ctx.lineTo(left+w,top+h);ctx.stroke();
+  ctx.strokeStyle='#f0abfc';ctx.lineWidth=3;ctx.beginPath();
+  valores.forEach((v,i)=>{let x=left+(w/(valores.length-1))*i;let y=top+h-((v-min)/range)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});
+  ctx.stroke();
+  ctx.fillStyle='white';ctx.font='12px Arial';
+  valores.forEach((v,i)=>{let x=left+(w/(valores.length-1))*i;let y=top+h-((v-min)/range)*h;ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();ctx.fillText(nomes[i],x-10,top+h+20)});
+}
+
+function removerAcessoSalvo(){localStorage.removeItem(SESSION);alert('Acesso salvo removido. Na próxima abertura, será solicitado login.');}
+function parseVoz(txt){let z=txt.toLowerCase(),tipo=/(recebi|receita|salário|salario|renda|ganhei)/.test(z)?'Receita':'Despesa',m=z.match(/(\d+[\.,]?\d*)/),val=m?Number(m[1].replace(',','.')):0,cat='Outros';if(z.includes('energia')||z.includes('luz'))cat='Energia';if(z.includes('água')||z.includes('agua'))cat='Água';if(z.includes('gasolina'))cat='Gasolina';if(z.includes('mercado')||z.includes('alimentação'))cat='Alimentação';if(z.includes('salário')||z.includes('salario'))cat='Salário';if(z.includes('renda'))cat='Renda extra';return{id:crypto.randomUUID(),data:new Date().toISOString().slice(0,10),codigo:'VOZ',historico:txt,tipo,categoria:cat,conta:'Voz',valor:val,valorReal:val,status:tipo==='Receita'?'Recebido':'Pago',observacao:'Registrado por voz'}}
+function ouvir(){let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){vozTexto.innerText='Use Google Chrome para reconhecimento de voz.';return}let rec=new SR();rec.lang='pt-BR';rec.start();vozTexto.innerText='Ouvindo...';rec.onresult=e=>{let txt=e.results[0][0].transcript;vozTexto.innerText=txt;dataUser().dados.lanc.unshift(parseVoz(txt));saveAll();render()}}
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(() => console.log('FinanceApp PWA instalado/registrado'))
+      .catch(err => console.log('Service Worker não registrado:', err));
+  });
+}
+</script>
+
+</body>
+</html>
